@@ -139,7 +139,7 @@ func NewAgent(client *anthropic.Client, getUserMessage getUserInput, tools []age
 
 	return &Agent{
 		client:           client,
-		model:            anthropic.ModelClaude3_7SonnetLatest,
+		model:            anthropic.ModelClaudeSonnet4_0,
 		systemPrompt:     systemPrompt,
 		getUserMessage:   getUserMessage,
 		conversation:     conversation,
