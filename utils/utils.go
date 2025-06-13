@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,20 @@ import (
 func CheckErr(err error) {
 	if err != nil {
 		log.Fatal("Error: ", err.Error())
+	}
+}
+
+type GetUserInput func() (string, bool)
+
+func ScanUserInput() GetUserInput {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	return func() (string, bool) {
+		if scanner.Scan() {
+			return scanner.Text(), true
+		}
+
+		return "", false
 	}
 }
 

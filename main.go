@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	_ "embed"
 	"encoding/json"
@@ -9,7 +8,6 @@ import (
 	"local-agent/agentTools"
 	"local-agent/utils"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/anthropics/anthropic-sdk-go"
@@ -32,7 +30,7 @@ type Agent struct {
 	client           *anthropic.Client
 	model            anthropic.Model
 	systemPrompt     []anthropic.TextBlockParam
-	getUserMessage   getUserInput
+	getUserMessage   utils.GetUserInput
 	conversation     []anthropic.MessageParam
 	tools            []anthropic.ToolUnionParam
 	toolsDefinitions []agenttools.ToolDefinition
@@ -70,6 +68,10 @@ func (a *Agent) executeTool(id, name string, input json.RawMessage) anthropic.Co
 	}
 
 	return anthropic.NewToolResultBlock(id, toolResponse, false)
+}
+
+func (a *Agent) CanRetryErr(err error) bool {
+	return false
 }
 
 func (a *Agent) Run(ctx context.Context) error {
@@ -120,9 +122,7 @@ func (a *Agent) Run(ctx context.Context) error {
 	return nil
 }
 
-type getUserInput func() (string, bool)
-
-func NewAgent(client *anthropic.Client, getUserMessage getUserInput, tools []agenttools.ToolDefinition) *Agent {
+func NewAgent(client *anthropic.Client, getUserMessage utils.GetUserInput, tools []agenttools.ToolDefinition) *Agent {
 	systemPrompt := []anthropic.TextBlockParam{{Text: SYSTEM_PROMPT}}
 	conversation := []anthropic.MessageParam{}
 	anthropicTools := []anthropic.ToolUnionParam{}
@@ -148,21 +148,9 @@ func NewAgent(client *anthropic.Client, getUserMessage getUserInput, tools []age
 	}
 }
 
-func scanUserInput() getUserInput {
-	scanner := bufio.NewScanner(os.Stdin)
-
-	return func() (string, bool) {
-		if scanner.Scan() {
-			return scanner.Text(), true
-		}
-
-		return "", false
-	}
-}
-
 func main() {
 	client := anthropic.NewClient(option.WithAPIKey(strings.Trim(ANTHROPIC_AGENT_KEY, " \n\r")))
-	getuserMessage := scanUserInput()
+	getuserMessage := utils.ScanUserInput()
 	agentTools := []agenttools.ToolDefinition{agenttools.ReadFileDefinition, agenttools.ListFilesDefinition, agenttools.EditFileDefinition}
 	agent := NewAgent(&client, getuserMessage, agentTools)
 
