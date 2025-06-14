@@ -73,6 +73,9 @@ func (a *Agent) executeTool(id, name string, input json.RawMessage) anthropic.Co
 
 func (a *Agent) Run(ctx context.Context) error {
 	readUserInput := true
+
+	a.PrintMessage("Chat with Grug (use ctrl-c to quit)")
+
 	for {
 		if readUserInput {
 
@@ -150,7 +153,6 @@ func main() {
 	agentTools := []agenttools.ToolDefinition{agenttools.ReadFileDefinition, agenttools.ListFilesDefinition, agenttools.EditFileDefinition}
 	agent := NewAgent(&client, tui, agentTools)
 
-	tui.PrintMessage("Chat with Grug (use ctrl-c to quit)")
 	err := agent.Run(context.Background())
 
 	utils.CheckErr(err)
