@@ -82,7 +82,8 @@ func (a *Agent) Run(ctx context.Context) error {
 			userInput, ok := a.GetUserInput()
 
 			if !ok {
-				break
+				a.PrintError("User input is invalid.")
+				continue
 			}
 
 			userMessage := anthropic.NewUserMessage(anthropic.NewTextBlock(userInput))

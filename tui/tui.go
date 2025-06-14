@@ -31,8 +31,22 @@ func (t *TUI) PrintError(errorMsg string) {
 func (t *TUI) GetUserInput() (string, bool) {
 	// \u001b[94m  bright blue
 	fmt.Print("\u001b[94mYou\u001b[0m: ")
-	return (*t.nextUserInput)()
+	str, ok := (*t.nextUserInput)()
+
+	if !ok {
+		return str, ok
+	}
+
+	// check if input has alphanumeric chars
+	for _, r := range str {
+		if r >= 48 && r <= 122 {
+			return str, true
+		}
+	}
+
+	return "", false
 }
+
 func New() *TUI {
 	t := TUI{nextUserInput: utils.ScanUserInput()}
 
