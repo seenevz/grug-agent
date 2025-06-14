@@ -4,8 +4,8 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
-	"fmt"
 	"local-agent/agentTools"
+	"local-agent/tui"
 	"local-agent/utils"
 	"log"
 	"strings"
@@ -27,6 +27,7 @@ func init() {
 }
 
 type Agent struct {
+	*tui.TUI
 	client           *anthropic.Client
 	model            anthropic.Model
 	systemPrompt     []anthropic.TextBlockParam
@@ -60,7 +61,7 @@ func (a *Agent) executeTool(id, name string, input json.RawMessage) anthropic.Co
 		return anthropic.NewToolResultBlock(id, "tool not found", true)
 	}
 
-	fmt.Printf("\u001b[92mtool\u001b[0m: %s(%s)\n", name, input)
+	a.PrintTool(name, input)
 	toolResponse, err := toolDef.Function(input)
 
 	if err != nil {
@@ -70,17 +71,12 @@ func (a *Agent) executeTool(id, name string, input json.RawMessage) anthropic.Co
 	return anthropic.NewToolResultBlock(id, toolResponse, false)
 }
 
-func (a *Agent) CanRetryErr(err error) bool {
-	return false
-}
-
 func (a *Agent) Run(ctx context.Context) error {
 	readUserInput := true
 	for {
 		if readUserInput {
 
-			fmt.Print("\u001b[94mYou\u001b[0m: ")
-			userInput, ok := a.getUserMessage()
+			userInput, ok := a.GetUserInput()
 
 			if !ok {
 				break
@@ -103,7 +99,7 @@ func (a *Agent) Run(ctx context.Context) error {
 		for _, content := range responseMessage.Content {
 			switch content.Type {
 			case "text":
-				fmt.Printf("\u001b[93mGrug\u001b[0m: %s\n", content.Text)
+				a.PrintAgent(content.Text)
 			case "tool_use":
 				result := a.executeTool(content.ID, content.Name, content.Input)
 				toolsResults = append(toolsResults, result)
@@ -122,7 +118,7 @@ func (a *Agent) Run(ctx context.Context) error {
 	return nil
 }
 
-func NewAgent(client *anthropic.Client, getUserMessage utils.GetUserInput, tools []agenttools.ToolDefinition) *Agent {
+func NewAgent(client *anthropic.Client, tui *tui.TUI, tools []agenttools.ToolDefinition) *Agent {
 	systemPrompt := []anthropic.TextBlockParam{{Text: SYSTEM_PROMPT}}
 	conversation := []anthropic.MessageParam{}
 	anthropicTools := []anthropic.ToolUnionParam{}
@@ -141,20 +137,20 @@ func NewAgent(client *anthropic.Client, getUserMessage utils.GetUserInput, tools
 		client:           client,
 		model:            anthropic.ModelClaudeSonnet4_0,
 		systemPrompt:     systemPrompt,
-		getUserMessage:   getUserMessage,
 		conversation:     conversation,
 		tools:            anthropicTools,
 		toolsDefinitions: tools,
+		TUI:              tui,
 	}
 }
 
 func main() {
 	client := anthropic.NewClient(option.WithAPIKey(strings.Trim(ANTHROPIC_AGENT_KEY, " \n\r")))
-	getuserMessage := utils.ScanUserInput()
+	tui := tui.New()
 	agentTools := []agenttools.ToolDefinition{agenttools.ReadFileDefinition, agenttools.ListFilesDefinition, agenttools.EditFileDefinition}
-	agent := NewAgent(&client, getuserMessage, agentTools)
+	agent := NewAgent(&client, tui, agentTools)
 
-	fmt.Println("Chat with Grug (use ctrl-c to quit)")
+	tui.PrintMessage("Chat with Grug (use ctrl-c to quit)")
 	err := agent.Run(context.Background())
 
 	utils.CheckErr(err)
