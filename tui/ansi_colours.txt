@@ -1,0 +1,39 @@
+ANSI color codes with \u001b:
+
+Foreground (text):
+\u001b[30m  black
+\u001b[31m  red
+\u001b[32m  green
+\u001b[33m  yellow
+\u001b[34m  blue
+\u001b[35m  magenta
+\u001b[36m  cyan
+\u001b[37m  white
+
+Background:
+\u001b[40m  black bg
+\u001b[41m  red bg
+\u001b[42m  green bg
+\u001b[43m  yellow bg
+\u001b[44m  blue bg
+\u001b[45m  magenta bg
+\u001b[46m  cyan bg
+\u001b[47m  white bg
+
+Bright colors:
+\u001b[90m  bright black (gray)
+\u001b[91m  bright red
+\u001b[92m  bright green
+\u001b[93m  bright yellow
+\u001b[94m  bright blue
+\u001b[95m  bright magenta
+\u001b[96m  bright cyan
+\u001b[97m  bright white
+
+Reset:
+\u001b[0m   reset to default
+
+Example:
+console.log('\u001b[31mRed text\u001b[0m Normal text');
+
+Can combine: \u001b[31;42m = red text on green background.
