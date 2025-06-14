@@ -2,7 +2,6 @@ package agenttools
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 )
 
@@ -17,7 +16,7 @@ func ReadFile(input json.RawMessage) (string, error) {
 	readFileInput := ReadFileInput{}
 	err := json.Unmarshal(input, &readFileInput)
 	if err != nil {
-		log.Panic(err)
+		return "", err
 	}
 
 	content, err := os.ReadFile(readFileInput.Path)
@@ -30,7 +29,7 @@ func ReadFile(input json.RawMessage) (string, error) {
 }
 
 type ReadFileInput struct {
-	Path string `json:"path" jsonschema_descriptiton:"The relative path of a file in the working directory."`
+	Path string `json:"path" jsonschema_description:"The relative path of a file in the working directory."`
 }
 
 var ReadFileInputSchema = GenerateSchema[ReadFileInput]()

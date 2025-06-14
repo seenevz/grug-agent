@@ -29,5 +29,6 @@ func GenerateSchema[T any]() anthropic.ToolInputSchemaParam {
 
 	return anthropic.ToolInputSchemaParam{
 		Properties: schema.Properties,
+		Type:       "object",
 	}
 }
