@@ -16,16 +16,18 @@ func CheckErr(err error) {
 
 type GetUserInput func() (string, bool)
 
-func ScanUserInput() GetUserInput {
+func ScanUserInput() *GetUserInput {
 	scanner := bufio.NewScanner(os.Stdin)
-
-	return func() (string, bool) {
+	var fn GetUserInput
+	fn = func() (string, bool) {
 		if scanner.Scan() {
 			return scanner.Text(), true
 		}
 
 		return "", false
 	}
+
+	return &fn
 }
 
 func CreateNewFile(filePath, content string) (string, error) {
