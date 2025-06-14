@@ -11,7 +11,7 @@ type TUI struct {
 
 func (t *TUI) PrintTool(name string, input any) {
 	// \u001b[92m  bright green
-	fmt.Printf("\u001b[92mtool\u001b[0m: %s(%s)\n", name, input)
+	fmt.Printf("\u001b[92mTool\u001b[0m: %s(%s)\n", name, input)
 }
 
 func (t *TUI) PrintAgent(content string) {
