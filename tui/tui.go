@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"local-agent/utils"
+	"sync"
 	"time"
 )
 
@@ -31,6 +32,7 @@ func (t *TUI) PrintError(errorMsg string) {
 
 func (t *TUI) PrintAgentWaiting() func() {
 	stop := make(chan bool)
+	var needWait sync.WaitGroup
 
 	cleanup := func() {
 		fmt.Printf("\x1b[1K\r")
@@ -38,8 +40,10 @@ func (t *TUI) PrintAgentWaiting() func() {
 
 	go func() {
 		ticker := time.NewTicker(500 * time.Millisecond)
-		fmt.Printf("Waiting for response ")
 		defer ticker.Stop()
+		needWait.Add(1)
+
+		fmt.Printf("Waiting for response ")
 
 		for i := 0; ; i++ {
 			if i > 3 {
@@ -52,12 +56,13 @@ func (t *TUI) PrintAgentWaiting() func() {
 				fmt.Printf("+")
 			case <-stop:
 				cleanup()
+				needWait.Done()
 				return
 			}
 		}
 	}()
 
-	return func() { stop <- true }
+	return func() { stop <- true; needWait.Wait() }
 }
 
 func (t *TUI) GetUserInput() (string, bool) {
