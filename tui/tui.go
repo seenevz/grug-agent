@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"local-agent/utils"
+	"time"
 )
 
 type TUI struct {
@@ -26,6 +27,37 @@ func (t *TUI) PrintMessage(message string) {
 func (t *TUI) PrintError(errorMsg string) {
 	// \u001b[91m  bright red
 	fmt.Printf("\u001b[91mError: %s\u001b[0m\n", errorMsg)
+}
+
+func (t *TUI) PrintAgentWaiting() func() {
+	stop := make(chan bool)
+
+	cleanup := func() {
+		fmt.Printf("\x1b[1K\r")
+	}
+
+	go func() {
+		ticker := time.NewTicker(500 * time.Millisecond)
+		fmt.Printf("Waiting for response ")
+		defer ticker.Stop()
+
+		for i := 0; ; i++ {
+			if i > 3 {
+				i = 0
+				fmt.Printf("\x1b[1K\rWaiting for response ")
+			}
+
+			select {
+			case <-ticker.C:
+				fmt.Printf("+")
+			case <-stop:
+				cleanup()
+				return
+			}
+		}
+	}()
+
+	return func() { stop <- true }
 }
 
 func (t *TUI) GetUserInput() (string, bool) {
