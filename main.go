@@ -91,6 +91,7 @@ func (a *Agent) Run(ctx context.Context) error {
 
 		}
 
+		stopWait := a.PrintAgentWaiting()
 		responseMessage, err := a.runInference(ctx)
 
 		if err != nil {
@@ -100,6 +101,7 @@ func (a *Agent) Run(ctx context.Context) error {
 		a.conversation = append(a.conversation, responseMessage.ToParam())
 
 		toolsResults := []anthropic.ContentBlockParamUnion{}
+		stopWait()
 		for _, content := range responseMessage.Content {
 			switch content.Type {
 			case "text":
