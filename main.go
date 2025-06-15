@@ -118,8 +118,6 @@ func (a *Agent) Run(ctx context.Context) error {
 		readUserInput = false
 		a.conversation = append(a.conversation, anthropic.NewUserMessage(toolsResults...))
 	}
-
-	return nil
 }
 
 func NewAgent(client *anthropic.Client, tui *tui.TUI, tools []agenttools.ToolDefinition) *Agent {
