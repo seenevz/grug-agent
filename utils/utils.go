@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -46,4 +47,26 @@ func CreateNewFile(filePath, content string) (string, error) {
 	}
 
 	return fmt.Sprintf("successfully created file: %s", filePath), nil
+}
+
+func LoadApiKey() (string, error) {
+	userHome, err := os.UserHomeDir()
+
+	if err != nil {
+		return "", err
+	}
+
+	apiKeyFile, err := os.Open(path.Join(userHome, ".grug-key"))
+
+	if err != nil {
+		return "", err
+	}
+
+	key, err := io.ReadAll(apiKeyFile)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(key), nil
 }

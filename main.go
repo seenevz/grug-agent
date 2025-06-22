@@ -7,23 +7,27 @@ import (
 	"local-agent/agentTools"
 	"local-agent/tui"
 	"local-agent/utils"
-	"log"
+	"os"
 	"strings"
 
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
 )
 
-//go:embed .key
 var ANTHROPIC_AGENT_KEY string
 
 //go:embed systemPrompt
 var SYSTEM_PROMPT string
 
 func init() {
-	if len(ANTHROPIC_AGENT_KEY) == 0 {
-		log.Fatal("Anthropic key is missing")
+	key, err := utils.LoadApiKey()
+
+	if err != nil || len(key) == 0 {
+		tui.New().PrintError("Anthropic key is missing")
+		os.Exit(1)
 	}
+
+	ANTHROPIC_AGENT_KEY = key
 }
 
 type Agent struct {
