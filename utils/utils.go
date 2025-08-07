@@ -15,6 +15,10 @@ func CheckErr(err error) {
 	}
 }
 
+func StrPnt(val string) *string {
+	return &val
+}
+
 type GetUserInput func() (string, bool)
 
 func ScanUserInput() *GetUserInput {
