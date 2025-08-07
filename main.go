@@ -106,6 +106,7 @@ func (a *Agent) Run(ctx context.Context) error {
 
 		toolsResults := []anthropic.ContentBlockParamUnion{}
 		stopWait()
+
 		for _, content := range responseMessage.Content {
 			switch content.Type {
 			case "text":
@@ -155,7 +156,7 @@ func NewAgent(client *anthropic.Client, tui *tui.TUI, tools []agenttools.ToolDef
 func main() {
 	client := anthropic.NewClient(option.WithAPIKey(strings.Trim(ANTHROPIC_AGENT_KEY, " \n\r")))
 	tui := tui.New()
-	agentTools := []agenttools.ToolDefinition{agenttools.ReadFileDefinition, agenttools.ListFilesDefinition, agenttools.EditFileDefinition}
+	agentTools := []agenttools.ToolDefinition{agenttools.ReadFileDefinition, agenttools.ListFilesDefinition, agenttools.EditFileDefinition, agenttools.OnlineSearchDefinition}
 	agent := NewAgent(&client, tui, agentTools)
 
 	err := agent.Run(context.Background())
