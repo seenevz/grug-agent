@@ -23,8 +23,8 @@ type GetUserInput func() (string, bool)
 
 func ScanUserInput() *GetUserInput {
 	scanner := bufio.NewScanner(os.Stdin)
-	var fn GetUserInput
-	fn = func() (string, bool) {
+
+	var fn GetUserInput = func() (string, bool) {
 		if scanner.Scan() {
 			return scanner.Text(), true
 		}
